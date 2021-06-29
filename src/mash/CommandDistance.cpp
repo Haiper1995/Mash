@@ -338,13 +338,19 @@ void compareSketches(CommandDistance::CompareOutput::PairOutput * output, const 
     uint64_t i = 0;
     uint64_t j = 0;
     uint64_t common = 0;
-    uint64_t denom = 0;
+    //uint64_t denom = 0;
     const HashList & hashesSortedRef = refRef.hashesSorted;
     const HashList & hashesSortedQry = refQry.hashesSorted;
+	uint64_t denom = hashesSortedRef.size() < hashesSortedQry.size() ? hashesSortedRef.size() : hashesSortedQry.size();
+	#ifdef DEBUG
+	cerr << "the size of refSketch is: " << hashesSortedRef.size() << endl;
+	cerr << "the size of qrySketch is: " << hashesSortedQry.size() << endl;
+	#endif
     
     output->pass = false;
     
-    while ( denom < sketchSize && i < hashesSortedRef.size() && j < hashesSortedQry.size() )
+    //while ( denom < sketchSize && i < hashesSortedRef.size() && j < hashesSortedQry.size() )
+    while (i < hashesSortedRef.size() && j < hashesSortedQry.size() )
     {
         if ( hashLessThan(hashesSortedRef.at(i), hashesSortedQry.at(j), hashesSortedRef.get64()) )
         {
@@ -361,28 +367,28 @@ void compareSketches(CommandDistance::CompareOutput::PairOutput * output, const 
             common++;
         }
         
-        denom++;
+        //denom++;
     }
     
-    if ( denom < sketchSize )
-    {
-        // complete the union operation if possible
-        
-        if ( i < hashesSortedRef.size() )
-        {
-            denom += hashesSortedRef.size() - i;
-        }
-        
-        if ( j < hashesSortedQry.size() )
-        {
-            denom += hashesSortedQry.size() - j;
-        }
-        
-        if ( denom > sketchSize )
-        {
-            denom = sketchSize;
-        }
-    }
+//    if ( denom < sketchSize )
+//    {
+//        // complete the union operation if possible
+//        
+//        if ( i < hashesSortedRef.size() )
+//        {
+//            denom += hashesSortedRef.size() - i;
+//        }
+//        
+//        if ( j < hashesSortedQry.size() )
+//        {
+//            denom += hashesSortedQry.size() - j;
+//        }
+//        
+//        if ( denom > sketchSize )
+//        {
+//            denom = sketchSize;
+//        }
+//    }
     
     double distance;
     double jaccard = double(common) / denom;
@@ -398,7 +404,8 @@ void compareSketches(CommandDistance::CompareOutput::PairOutput * output, const 
     else
     {
         //distance = log(double(common + 1) / (denom + 1)) / log(1. / (denom + 1));
-        distance = -log(2 * jaccard / (1. + jaccard)) / kmerSize;
+        //distance = -log(2 * jaccard / (1. + jaccard)) / kmerSize;
+		distance = 1.0 - jaccard;
         
         if ( distance > 1 )
         {

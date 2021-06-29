@@ -1356,7 +1356,8 @@ Sketch::SketchOutput * sketchSequence(Sketch::SketchInput * input)
 	}
 	else
 	{
-	    MinHashHeap minHashHeap(parameters.use64, parameters.minHashesPerWindow, parameters.reads ? parameters.minCov : 1);
+	    //MinHashHeap minHashHeap(parameters.use64, parameters.minHashesPerWindow, parameters.reads ? parameters.minCov : 1);
+	    MinHashHeap minHashHeap(parameters.use64, input->length/10000, parameters.reads ? parameters.minCov : 1);
         addMinHashes(minHashHeap, input->seq, input->length, parameters);
 		setMinHashesForReference(reference, minHashHeap);
 	}
